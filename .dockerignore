@@ -1,0 +1,15 @@
+.env
+.git
+.github
+.venv
+__pycache__
+runs
+outputs
+*.mp4
+*.mp3
+*.pyc
+.vscode
+.idea
+*.log
+Dockerfile
+.dockerignore

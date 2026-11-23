@@ -1,0 +1,14 @@
+{
+  "baseline": {
+    "status": "ready",
+    "calls": 1,
+    "tokens": 1792,
+    "seconds": 30.72
+  },
+  "vimax": {
+    "status": "ready",
+    "calls": 3,
+    "tokens": 8093,
+    "seconds": 83.85
+  }
+}

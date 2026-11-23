@@ -1,0 +1,17 @@
+{
+  "theme": "雨后校园场景中两人通过一个动作达成和解",
+  "style": "unspecified",
+  "language": "unspecified",
+  "camera": "结尾使用慢推运镜",
+  "sound": "no_narration",
+  "must": [
+    "内容围绕雨后校园场景展开",
+    "呈现两人通过单个动作完成和解的情节",
+    "结尾采用慢推运镜",
+    "全程无对白无旁白"
+  ],
+  "avoid": [],
+  "duration_mode": "max",
+  "seconds": 18,
+  "question": ""
+}

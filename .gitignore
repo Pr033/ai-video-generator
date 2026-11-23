@@ -1,0 +1,29 @@
+# === 环境 ===
+.env
+.env.local
+.venv/
+venv/
+
+# === 产物 ===
+runs/
+outputs/
+*.mp4
+*.mp3
+*.wav
+*.png
+
+# === Python 缓存 ===
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.eggs/
+
+# === IDE ===
+.vscode/
+.idea/
+.DS_Store
+
+# === 部署 ===
+.docker/
+*.log

@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>AI 视频生成器 — 10 Agent 流水线</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "Segoe UI", "PingFang SC", sans-serif;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    color: #e0e0e0;
+    margin: 0; padding: 0;
+    min-height: 100vh;
+  }
+  .container { max-width: 900px; margin: 0 auto; padding: 32px 20px; }
+  h1 { font-size: 28px; margin: 0 0 8px; color: #fff; }
+  .subtitle { color: #888; margin-bottom: 32px; font-size: 14px; }
+
+  .card {
+    background: #1f2340;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+    border: 1px solid #2d3561;
+  }
+  .card h2 { font-size: 16px; margin: 0 0 16px; color: #a0a8ff; }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 600px) { .grid2 { grid-template-columns: 1fr; } }
+
+  label { display: block; font-size: 12px; color: #888; margin-bottom: 4px; }
+  input, select, textarea {
+    width: 100%; padding: 10px 12px;
+    background: #151830; border: 1px solid #2d3561;
+    border-radius: 8px; color: #e0e0e0; font-size: 14px;
+    outline: none; transition: border-color .2s;
+    font-family: inherit;
+  }
+  input:focus, select:focus, textarea:focus { border-color: #6366f1; }
+  textarea { resize: vertical; min-height: 80px; }
+
+  .section-toggle { cursor: pointer; user-select: none; font-size: 14px; color: #6366f1; margin-bottom: 12px; }
+  .section-toggle:hover { color: #818cf8; }
+  .section-hidden { display: none; }
+
+  button {
+    width: 100%; padding: 14px; font-size: 16px; font-weight: 600;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    border: none; border-radius: 8px; color: white; cursor: pointer;
+    transition: opacity .2s;
+  }
+  button:hover { opacity: 0.9; }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* Progress */
+  #progress { margin-top: 16px; }
+  .stage-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 8px 12px; border-radius: 6px; margin-bottom: 6px;
+    background: #151830; font-size: 13px;
+  }
+  .stage-icon { width: 20px; text-align: center; }
+  .stage-name { flex: 1; }
+  .stage-status { color: #888; font-size: 12px; }
+
+  .stage-done .stage-icon { color: #10b981; }
+  .stage-running .stage-icon { color: #6366f1; animation: pulse 1s infinite; }
+  .stage-failed .stage-icon { color: #ef4444; }
+  .stage-skipped .stage-icon { color: #666; }
+  @keyframes pulse { 0%,100% {opacity:1} 50% {opacity:.4} }
+
+  /* Result */
+  #result { margin-top: 20px; }
+  video { width: 100%; border-radius: 8px; background: #000; }
+  .artifacts { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .artifact-btn {
+    background: #2d3561; padding: 6px 12px; border-radius: 6px;
+    font-size: 12px; color: #a0a8ff; text-decoration: none; display: inline-block;
+  }
+  .artifact-btn:hover { background: #3d4571; color: #fff; }
+
+  .message { padding: 12px; border-radius: 8px; margin-top: 12px; font-size: 13px; }
+  .message-error { background: #4a1f2e; color: #ef4444; }
+  .message-info { background: #1f3a4a; color: #38bdf8; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <h1>🎬 AI 视频生成器</h1>
+  <p class="subtitle">10 Agent 流水线 · 想法 → 剧本 → 分镜 → 视频 → 成片</p>
+
+  <!-- === Step 1: Idea === -->
+  <div class="card">
+    <h2>① 视频灵感</h2>
+    <textarea id="idea" placeholder="雨停后的校园，15秒，电影感，结尾用慢推运镜"></textarea>
+    <div class="grid2" style="margin-top: 12px;">
+      <div>
+        <label>每个 beat 秒数（可选，空格分隔）</label>
+        <input id="slots" placeholder="5 5 5">
+      </div>
+      <div>
+        <label>视频 Provider</label>
+        <select id="provider">
+          <option value="seedance">Seedance（火山方舟）</option>
+          <option value="minimax">MiniMax-H3</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- === Step 2: API Keys === -->
+  <div class="card">
+    <h2>② API 配置 <span class="section-toggle" id="keysToggle">▼ 展开 / 收起</span></h2>
+    <div id="keysSection">
+      <div class="message message-info" style="margin-bottom: 16px;">
+        Keys 仅在本次请求中使用，不会存盘。也可以留空勾选 dry-run 验证流程。
+      </div>
+
+      <div style="margin-bottom: 16px;">
+        <label>🧠 LLM — 用于 Script / Storyboard / Prompt 三个 Agent</label>
+        <div class="grid2">
+          <input id="chatKey" placeholder="CHAT_API_KEY">
+          <input id="chatModel" placeholder="CHAT_MODEL (endpoint ID)">
+        </div>
+        <input id="chatBase" placeholder="CHAT_BASE_URL (https://ark.cn-beijing.volces.com/api/v3)" style="margin-top: 8px;">
+      </div>
+
+      <div style="margin-bottom: 16px;">
+        <label>🎥 视频生成</label>
+        <div class="grid2">
+          <input id="seedreamId" placeholder="Seedance endpoint ID">
+          <input id="minimaxKey" placeholder="MINIMAX_API_KEY">
+        </div>
+      </div>
+
+      <div>
+        <label>🎨 可选（留空会跳过）</label>
+        <div class="grid2">
+          <input id="openaiKey" placeholder="OPENAI_API_KEY (DALL·E + VLM QA)">
+          <input id="elevenKey" placeholder="ELEVENLABS_API_KEY (TTS)">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- === Step 3: Generate === -->
+  <div class="card">
+    <label style="display: flex; align-items: center; gap: 8px; font-size: 14px; margin-bottom: 16px;">
+      <input type="checkbox" id="dryRun" style="width: auto;">
+      <span>Dry-run 模式（不调任何 API，只跑通流水线验证）</span>
+    </label>
+    <button id="submitBtn" onclick="submit()">🚀 开始生成</button>
+  </div>
+
+  <!-- === Progress === -->
+  <div id="progress" style="display: none;" class="card">
+    <h2>③ 生成进度</h2>
+    <div id="stagesContainer"></div>
+  </div>
+
+  <!-- === Result === -->
+  <div id="result" style="display: none;" class="card">
+    <h2>④ 生成结果</h2>
+    <div id="resultContent"></div>
+  </div>
+
+</div>
+
+<script>
+const STAGES = ["script","storyboard","prompts","reference","video","audio","compose","qa"];
+const STAGE_LABEL = {
+  script:"📖 ScriptAgent 剧本",
+  storyboard:"🎬 StoryboardAgent 分镜",
+  prompts:"✍️ PromptEngineer 提示词",
+  reference:"🖼️ ReferenceImage 参考图",
+  video:"🎥 VideoSegment 视频片段",
+  audio:"🎵 AudioAgent 音频",
+  compose:"🎞️ ComposerAgent 合成",
+  qa:"🔍 QA 质检",
+};
+
+function submit() {
+  const idea = document.getElementById("idea").value.trim();
+  if (!idea) { alert("请填写视频灵感"); return; }
+
+  const payload = {
+    idea,
+    slots: (document.getElementById("slots").value.trim() || null)
+           ? document.getElementById("slots").value.trim().split(/\s+/).map(Number)
+           : null,
+    dry_run: document.getElementById("dryRun").checked,
+    video_provider: document.getElementById("provider").value,
+    script_backend: "auto",
+  };
+  // Only send keys the user filled in
+  const k = document.getElementById("chatKey").value.trim();
+  if (k) payload.chat_api_key = k;
+  const m = document.getElementById("chatModel").value.trim();
+  if (m) payload.chat_model = m;
+  const b = document.getElementById("chatBase").value.trim();
+  if (b) payload.chat_base_url = b;
+  const s = document.getElementById("seedreamId").value.trim();
+  if (s) payload.seedream_model_id = s;
+  const mm = document.getElementById("minimaxKey").value.trim();
+  if (mm) payload.minimax_api_key = mm;
+  const oa = document.getElementById("openaiKey").value.trim();
+  if (oa) payload.openai_api_key = oa;
+  const el = document.getElementById("elevenKey").value.trim();
+  if (el) payload.elevenlabs_api_key = el;
+
+  const btn = document.getElementById("submitBtn");
+  btn.disabled = true; btn.textContent = "提交中...";
+
+  fetch("/api/generate", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify(payload),
+  })
+  .then(r => r.json())
+  .then(data => {
+    btn.disabled = false; btn.textContent = "🚀 开始生成";
+    if (data.task_id) poll(data.task_id);
+    else alert("提交失败: " + JSON.stringify(data));
+  })
+  .catch(e => { btn.disabled = false; alert("网络错误: " + e.message); });
+}
+
+function poll(taskId) {
+  document.getElementById("progress").style.display = "block";
+  renderStages({});
+  const interval = setInterval(() => {
+    fetch(`/api/status/${taskId}`)
+      .then(r => r.json())
+      .then(t => {
+        renderStages(t);
+        if (t.status === "done" || t.status === "failed") {
+          clearInterval(interval);
+          showResult(taskId, t);
+        }
+      });
+  }, 2000);
+}
+
+function renderStages(t) {
+  const container = document.getElementById("stagesContainer");
+  const stages = t.manifest ? t.manifest.stages : {};
+  let html = "";
+  for (const s of STAGES) {
+    const info = stages[s] || {};
+    let status = info.status || "pending";
+    let iconCls = "stage-pending";
+    let icon = "⏳";
+    if (status === "done") { iconCls = "stage-done"; icon = "✅"; }
+    else if (status === "running") { iconCls = "stage-running"; icon = "🔄"; }
+    else if (status === "failed") { iconCls = "stage-failed"; icon = "❌"; }
+    else if (status === "skipped") { iconCls = "stage-skipped"; icon = "⏭"; }
+    html += `<div class="stage-row ${iconCls}">
+      <span class="stage-icon">${icon}</span>
+      <span class="stage-name">${STAGE_LABEL[s]}</span>
+      <span class="stage-status">${status}${info.error ? " — " + info.error : ""}</span>
+    </div>`;
+  }
+  container.innerHTML = html;
+}
+
+function showResult(taskId, t) {
+  document.getElementById("result").style.display = "block";
+  const content = document.getElementById("resultContent");
+  if (t.final_video || (t.manifest && t.manifest.stages.compose && t.manifest.stages.compose.artifact)) {
+    const videoUrl = `/api/video/${taskId}`;
+    const runDir = t.run_dir;
+    content.innerHTML = `
+      <video controls autoplay src="${videoUrl}"></video>
+      <div class="artifacts">
+        <a class="artifact-btn" href="${videoUrl}" download>⬇️ 下载视频</a>
+        <a class="artifact-btn" href="/api/artifacts/${taskId}/manifest.json">📋 manifest</a>
+        <a class="artifact-btn" href="/api/artifacts/${taskId}/script/script.json">📖 script</a>
+        <a class="artifact-btn" href="/api/artifacts/${taskId}/storyboard/board.json">🎬 storyboard</a>
+        <a class="artifact-btn" href="/api/artifacts/${taskId}/prompts/prompted_board.json">✍️ prompts</a>
+      </div>`;
+  } else {
+    const err = t.error || "视频生成失败，检查 API Key 权限";
+    content.innerHTML = `<div class="message message-error">❌ ${err}</div>`;
+  }
+}
+
+// Keys section toggle
+document.getElementById("keysToggle").addEventListener("click", () => {
+  const s = document.getElementById("keysSection");
+  s.classList.toggle("section-hidden");
+});
+</script>
+</body>
+</html>

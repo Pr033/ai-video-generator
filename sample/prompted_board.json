@@ -1,0 +1,121 @@
+{
+  "status": "ready",
+  "schema_version": 1,
+  "title": "水洼边的和解",
+  "brief": {
+    "theme": "雨后校园场景中两人通过一个动作达成和解",
+    "style": "unspecified",
+    "language": "unspecified",
+    "camera": "结尾使用慢推运镜",
+    "sound": "no_narration",
+    "must": [
+      "内容围绕雨后校园场景展开",
+      "呈现两人通过单个动作完成和解的情节",
+      "结尾采用慢推运镜",
+      "全程无对白无旁白"
+    ],
+    "avoid": [],
+    "duration_mode": "max",
+    "seconds": 18,
+    "question": ""
+  },
+  "duration_s": 15,
+  "narration_by_beat": {
+    "B01": "",
+    "B02": "",
+    "B03": ""
+  },
+  "shots": [
+    {
+      "beat_id": "B01",
+      "duration_sec": 5,
+      "scene_id": "S001",
+      "characters": [
+        "男生A",
+        "女生B"
+      ],
+      "visual_description": "雨后湿漉漉的校园柏油路铺着清浅水洼，梧桐枝叶垂在水洼上方，两人分别站在水洼左右两侧，白鞋干净整洁",
+      "action": "风卷动梧桐叶晃动，叶面积攒的积水滴落，小水花同时溅到站在水洼两侧两人的白鞋鞋尖，二人先后低头看向鞋尖，视线意外在水洼上空相撞",
+      "camera": {
+        "shot_size": "中景",
+        "movement": "固定",
+        "angle": "平拍"
+      },
+      "start_state": "雨后的校园柏油路留着清浅水洼，持皱社团海报的男生站在水洼左侧，抱画纸的女生站在水洼右侧，二人都刻意别开脸不看对方",
+      "end_state": "二人同时低头看向沾了水珠的鞋尖，视线意外在水洼上空相撞",
+      "transition": "opening",
+      "continuity_requirements": [
+        "保持雨后地面湿润反光的质感，两人站位距水洼边缘各1米，白鞋仅鞋尖沾到细小水珠"
+      ],
+      "dialogue": "",
+      "shot_id": "shot_001",
+      "order": 1,
+      "start_s": 0,
+      "end_s": 5,
+      "input_state_from": null,
+      "prompt_mode": "translate",
+      "video_prompt": "5-second medium shot, fixed flat angle, no dialogue no narration. Opening state: Post-rain campus asphalt road with shallow puddles, wet ground carries distinct reflective sheen, a boy holding a crumpled club poster stands 1 meter from the left edge of the puddle, a girl holding a stack of drawing papers stands 1 meter from the right edge of the puddle, both deliberately turn their faces away from each other, their white shoes are fully clean. Action: Wind sways the sycamore branches and leaves hanging over the puddle, accumulated rainwater on the leaves drips down, tiny splashes land on the toe of both people's white shoes at the exact same time, the two lower their heads one after another to look at the water droplets on their shoe toes, their lines of sight unexpectedly collide in the air above the puddle. End state: Both are looking down at their damp shoe toes, eyes locked across the puddle."
+    },
+    {
+      "beat_id": "B02",
+      "duration_sec": 5,
+      "scene_id": "S001",
+      "characters": [
+        "男生A",
+        "女生B"
+      ],
+      "visual_description": "镜头顺着泛着天光的水洼水面缓慢横移，掠过晃动的细碎水纹，依次扫过男生攥着皱海报的手、海报上的涂鸦图案，最后落到女生抱着的画纸边缘",
+      "action": "男生下意识把挡在身前的皱海报往侧边挪开半尺，露出海报上二人此前共同绘制的涂鸦图案，女生紧绷的手臂慢慢放松，指尖蹭到最上方合作插画的边角",
+      "camera": {
+        "shot_size": "中景",
+        "movement": "横移",
+        "angle": "平拍"
+      },
+      "start_state": "二人视线相撞后同时僵住，都没率先开口，肢体保持着别扭的侧身姿态",
+      "end_state": "女生抱着画纸的手臂放松下来，指尖蹭到最上方那张二人合作的插画边角",
+      "transition": "cut",
+      "continuity_requirements": [
+        "海报上的涂鸦图案细节前后统一，女生怀中画纸露出的边角插画为二人合作作品，水洼水面始终保留天光反射效果"
+      ],
+      "dialogue": "",
+      "shot_id": "shot_002",
+      "order": 2,
+      "start_s": 5,
+      "end_s": 10,
+      "input_state_from": null,
+      "prompt_mode": "translate",
+      "video_prompt": "5-second medium shot, flat angle, slow horizontal tracking movement, no dialogue no narration. Opening state: After their gazes collide, both freeze, no one speaks, holding awkward sideways postures, the puddle surface retains soft sky light reflection. Action: The boy unconsciously shifts the crumpled poster he was holding in front of his body half a foot to the side, fully revealing the shared doodle pattern the two drew together previously, the girl's tensed arms slowly relax, her fingertips brush the edge of the top collaborative illustration on the stack of drawing papers she is holding. End state: The girl's fingertips rest lightly on the edge of the shared collaborative illustration."
+    },
+    {
+      "beat_id": "B03",
+      "duration_sec": 5,
+      "scene_id": "S001",
+      "characters": [
+        "男生A",
+        "女生B"
+      ],
+      "visual_description": "镜头匀速向前慢推，焦点逐渐收紧在两人隔空相对的指尖上，背景的绿树、远处教学楼逐渐虚化，一片梧桐叶飘落到水洼表面漾开层层波纹",
+      "action": "二人同时抬起手，隔着水洼上方的空气，指尖轻轻一碰完成默契的和解动作，风卷着梧桐叶落到水洼里漾开环形波纹",
+      "camera": {
+        "shot_size": "特写",
+        "movement": "慢推",
+        "angle": "平拍"
+      },
+      "start_state": "水洼表面浮着几片细碎梧桐叶，二人的目光都落在彼此抬起的手上",
+      "end_state": "指尖相触的瞬间，风把一片梧桐叶吹落到水洼里，漾开细碎的环形波纹",
+      "transition": "cut",
+      "continuity_requirements": [
+        "指尖相触的动作轻柔自然，梧桐叶飘落的时机和指尖触碰完全同步，慢推过程中焦点始终锁定二人相触的指尖"
+      ],
+      "dialogue": "",
+      "shot_id": "shot_003",
+      "order": 3,
+      "start_s": 10,
+      "end_s": 15,
+      "input_state_from": null,
+      "prompt_mode": "translate",
+      "video_prompt": "5-second close up, flat angle, slow push-in movement, no dialogue no narration, final shot. Opening state: Several small broken sycamore leaves float on the puddle surface, both people's eyes are fixed on each other's slowly rising hands. Action: The slow push-in movement keeps focus locked on the two people's fingertips the entire time, background green trees and distant campus teaching building gradually soften and blur, both lift their hands at the same time, their fingertips gently touch each other across the air above the puddle to complete the silent reconciliation action, perfectly synchronized with the moment their fingertips make contact, a sycamore leaf is blown by the wind and falls onto the puddle surface, spreading out layers of soft circular ripples. End state: The sycamore leaf rests on the rippling puddle surface, focus stays sharp on the pair of touching fingertips."
+    }
+  ],
+  "backend": "baseline"
+}

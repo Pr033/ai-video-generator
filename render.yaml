@@ -1,0 +1,28 @@
+# ===================================================================
+# Render.com 一键部署配置 — 免费模式（临时文件系统）
+#
+# 使用方法：
+#   1. GitHub 上新建空仓库，push 本项目
+#   2. 打开 https://render.com → New → Blueprint
+#   3. 选择刚才的 GitHub 仓库 → Deploy
+#
+# ⚠️ 免费层说明：
+#   • 15 分钟无请求自动休眠，唤醒需 5-10 秒冷启动
+#   • 容器重启/部署后 runs/ 目录清空（临时文件系统）
+#   • 容器活着期间数据都在
+#   • 要持久化 → 升级 Starter $7/月 + 加 disk $0.25/GB/月
+# ===================================================================
+
+services:
+  - type: web
+    name: ai-video-generator
+    env: docker
+    region: singapore
+    plan: free
+    dockerfilePath: ./Dockerfile
+
+    envVars:
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      - key: PORT
+        value: "8000"
