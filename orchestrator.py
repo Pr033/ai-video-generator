@@ -254,7 +254,8 @@ class OrchestratorAgent:
 
     @staticmethod
     def _script_to_board(script: dict) -> dict:
-        """ScriptAgent returns a script; convert to our universal board shape."""
+        """ScriptAgent returns a script; convert to our universal board shape.
+        同时保留 beats 字段供 storyboard.py 使用。"""
         beats = script.get("beats", [])
         shots = []
         cursor = 0
@@ -279,7 +280,7 @@ class OrchestratorAgent:
                 "scene_id": "S001",
             })
             cursor += dur
-        return {
+        result = {
             "schema_version": script.get("schema_version", 1),
             "status": "ready",
             "title": script.get("title", "Untitled"),
@@ -288,6 +289,14 @@ class OrchestratorAgent:
             "narration_by_beat": script.get("narration_by_beat", {}),
             "shots": shots,
         }
+        # 同时保留 beats 和 source_idea（storyboard.py 依赖）
+        if beats:
+            result["beats"] = beats
+        if "source_idea" in script:
+            result["source_idea"] = script["source_idea"]
+        elif "idea" in script:
+            result["source_idea"] = script["idea"]
+        return result
 
     def _dry_run_storyboard(self, board: dict) -> dict:
         # ScriptAgent (live) produces a "script" with beats → needs _script_to_board

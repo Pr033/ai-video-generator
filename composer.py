@@ -12,8 +12,20 @@ Handles:
 """
 from __future__ import annotations
 import json
+import shutil
 import subprocess
 from pathlib import Path
+
+def _find_ffmpeg() -> str:
+    """Find ffmpeg binary: system PATH first, fallback to imageio-ffmpeg."""
+    path = shutil.which("ffmpeg")
+    if path:
+        return path
+    try:
+        import imageio_ffmpeg
+        return imageio_ffmpeg.get_ffmpeg_exe()
+    except Exception:
+        return "ffmpeg"  # hope for the best
 
 
 class ComposerAgent:
@@ -81,7 +93,7 @@ class ComposerAgent:
         concat_inputs = "".join(f"[v{i}][a{i}]" for i in range(n))
         filter_str = "".join(filter_parts) + concat_inputs + f"concat=n={n}:v=1:a=1[v][a]"
 
-        cmd = (["ffmpeg", "-y"] + inputs_args +
+        cmd = ([_find_ffmpeg(), "-y"] + inputs_args +
                ["-filter_complex", filter_str,
                 "-map", "[v]", "-map", "[a]",
                 "-c:v", "libx264", "-preset", self.preset, "-crf", str(self.crf),
@@ -102,7 +114,7 @@ class ComposerAgent:
     @staticmethod
     def _mix_audio(video: Path, audio: Path, output: Path) -> Path:
         """Overlay audio track onto video; audio longer than video is truncated."""
-        cmd = ["ffmpeg", "-y", "-i", str(video), "-i", str(audio),
+        cmd = [_find_ffmpeg(), "-y", "-i", str(video), "-i", str(audio),
                "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
                "-map", "0:v:0", "-map", "1:a:0",
                "-shortest", "-movflags", "+faststart",
