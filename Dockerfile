@@ -30,5 +30,9 @@ RUN mkdir -p runs /data/runs
 # FastAPI 端口
 EXPOSE 8000
 
-# 启动命令
-CMD ["uvicorn", "web.app:app", "--host", "0.0.0.0", "--port", "8000"]
+# Zeabur / Render 会注入 PORT 环境变量；默认 8000
+ENV PORT=8000
+ENV RUNS_DIR=/app/runs
+
+# 启动命令 —— 用 $PORT 适配平台动态端口分配
+CMD uvicorn web.app:app --host 0.0.0.0 --port ${PORT}
