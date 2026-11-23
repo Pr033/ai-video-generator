@@ -100,10 +100,10 @@
         <input id="slots" placeholder="5 5 5">
       </div>
       <div>
-        <label>视频 Provider</label>
+        <label>视频 Provider（期末统一用 MiniMax-H3）</label>
         <select id="provider">
+          <option value="minimax" selected>MiniMax-H3（推荐）</option>
           <option value="seedance">Seedance（火山方舟）</option>
-          <option value="minimax">MiniMax-H3</option>
         </select>
       </div>
     </div>
@@ -121,16 +121,16 @@
         <label>🧠 LLM — 用于 Script / Storyboard / Prompt 三个 Agent</label>
         <div class="grid2">
           <input id="chatKey" placeholder="CHAT_API_KEY">
-          <input id="chatModel" placeholder="CHAT_MODEL (endpoint ID)">
+          <input id="chatModel" placeholder="doubao-seed-2-1-pro-260915">
         </div>
         <input id="chatBase" placeholder="CHAT_BASE_URL (https://ark.cn-beijing.volces.com/api/v3)" style="margin-top: 8px;">
       </div>
 
       <div style="margin-bottom: 16px;">
-        <label>🎥 视频生成</label>
+        <label>🎥 视频生成（期末用 minimax-h3）</label>
         <div class="grid2">
-          <input id="seedreamId" placeholder="Seedance endpoint ID">
-          <input id="minimaxKey" placeholder="MINIMAX_API_KEY">
+          <input id="seedreamId" placeholder="doubao-seedream-5-5-261028（图像参考）">
+          <input id="minimaxKey" placeholder="MINIMAX_API_KEY（miniMax-h3）">
         </div>
       </div>
 

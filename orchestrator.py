@@ -43,7 +43,7 @@ class OrchestratorAgent:
     """Coordinator that chains every video-production agent."""
 
     def __init__(self, run_dir: str | Path, dry_run: bool = False,
-                 video_provider: str = "seedance",
+                 video_provider: str = "minimax",
                  script_backend: str = "auto", script_budget: str = "standard"):
         self.run_dir = Path(run_dir)
         self.run_dir.mkdir(parents=True, exist_ok=True)
@@ -431,7 +431,7 @@ if __name__ == "__main__":
     p.add_argument("idea", help="视频灵感")
     p.add_argument("--run-dir", type=Path, required=True)
     p.add_argument("--dry-run", action="store_true", help="不调任何 API，跑通流程验证")
-    p.add_argument("--provider", choices=["seedance", "minimax"], default="seedance")
+    p.add_argument("--provider", choices=["seedance", "minimax"], default="minimax")
     p.add_argument("--slots", type=int, nargs="+")
     p.add_argument("--resume", choices=STAGES, help="从某阶段恢复")
     args = p.parse_args()

@@ -108,7 +108,7 @@ def main():
     p.add_argument("--backend", choices=["auto", "baseline", "vimax"], default="auto")
     p.add_argument("--budget", choices=["economy", "standard", "ample"], default="standard")
     p.add_argument("--slots", type=int, nargs="+", help="每个 beat 的秒数")
-    p.add_argument("--provider", choices=["seedance", "minimax"], default="seedance")
+    p.add_argument("--provider", choices=["seedance", "minimax"], default="minimax")
     p.add_argument("--run-name", help="runs/{name}/ 下的输出目录名")
     p.add_argument("--stage", choices=["prompts", "video", "compose", "full"], default="full",
                    help="只跑某一阶段或完整流水线")

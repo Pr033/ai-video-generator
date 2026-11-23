@@ -157,7 +157,7 @@ if __name__ == "__main__":
 
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("board", type=Path, help="prompted_board.json")
-    p.add_argument("--provider", choices=["seedance", "minimax"], default="seedance")
+    p.add_argument("--provider", choices=["seedance", "minimax"], default="minimax")
     p.add_argument("--out", type=Path, required=True, help="输出目录")
     args = p.parse_args()
 

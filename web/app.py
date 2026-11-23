@@ -56,7 +56,7 @@ class GenerateRequest(BaseModel):
                       description="视频灵感，例如 '雨停后的校园，15秒，电影感'")
     slots: Optional[list[int]] = Field(default=None, description="每个 beat 的秒数")
     dry_run: bool = Field(default=False, description="不调任何 API，验证流程")
-    video_provider: str = Field(default="seedance", pattern="^(seedance|minimax)$")
+    video_provider: str = Field(default="minimax", pattern="^(seedance|minimax)$")
     script_backend: str = Field(default="auto", pattern="^(auto|baseline|vimax)$")
 
     # API credentials — user fills in per-request, NEVER persisted on disk

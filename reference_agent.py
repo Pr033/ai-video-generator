@@ -4,7 +4,8 @@ For opening / first shots, generates a visual anchor so the downstream
 VideoSegmentAgent can submit a consistent first-frame reference.
 "continue" shots still use the predecessor's last frame (handled by VideoSegmentAgent).
 
-Supports:
+Supports (期末考试 2026-11 更新):
+  - Seedream 5.5 豆包图像模型（SEEDREAM_MODEL_ID + ARK_API_KEY / CHAT_API_KEY）
   - DALL·E 3 (OpenAI key → OPENAI_API_KEY env)
   - FLUX / SDXL via Replicate (REPLICATE_API_TOKEN env)
 
@@ -33,7 +34,7 @@ class ReferenceImageAgent:
                  size: str = "1024x576"):
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
-        self.backend = backend  # "auto" | "dalle" | "replicate"
+        self.backend = backend  # "auto" | "seedream" | "dalle" | "replicate"
         self.size = size
         self._resolved = self._resolve_backend()
 
@@ -83,7 +84,12 @@ class ReferenceImageAgent:
 
     def _resolve_backend(self) -> str | None:
         if self.backend != "auto":
-            return self.backend if self.backend in ("dalle", "replicate") else None
+            return self.backend if self.backend in ("seedream", "dalle", "replicate") else None
+        # 优先级：Seedream（指定模型）> DALL·E > Replicate
+        if os.environ.get("SEEDREAM_MODEL_ID"):
+            # Seedream 复用 ARK_API_KEY 或 CHAT_API_KEY
+            if os.environ.get("ARK_API_KEY") or os.environ.get("CHAT_API_KEY"):
+                return "seedream"
         if os.environ.get("OPENAI_API_KEY"):
             return "dalle"
         if os.environ.get("REPLICATE_API_TOKEN"):
@@ -117,11 +123,57 @@ class ReferenceImageAgent:
         out_dir.mkdir(parents=True, exist_ok=True)
         img = out_dir / f"{shot_id}_ref.jpg"
 
-        if self._resolved == "dalle":
+        if self._resolved == "seedream":
+            return self._seedream(prompt, img)
+        elif self._resolved == "dalle":
             return self._dalle(prompt, img)
         elif self._resolved == "replicate":
             return self._replicate(prompt, img)
         return None
+
+    # ---- Seedream 5.5 豆包（火山方舟）----
+
+    def _seedream(self, prompt: str, out: Path) -> Path | None:
+        """调用火山方舟 Seedream 图像生成端点。"""
+        key = os.environ.get("ARK_API_KEY") or os.environ.get("CHAT_API_KEY")
+        model = os.environ.get("SEEDREAM_MODEL_ID", "doubao-seedream-5-5-261028")
+        base_url = os.environ.get("CHAT_BASE_URL", "https://ark.cn-beijing.volces.com/api/v3")
+        endpoint = base_url.rstrip("/") + "/images/generations"
+
+        # 尺寸映射：1024x576 → 适合 16:9 视频首帧
+        size_map = {"1024x576": "1024x576", "1024x1024": "1024x1024",
+                    "768x768": "768x768", "512x512": "512x512"}
+        size = size_map.get(self.size, self.size)
+
+        body = json.dumps({
+            "model": model,
+            "prompt": prompt[:1000],
+            "size": size,
+            "n": 1,
+            "response_format": "url",
+        }).encode()
+        req = urllib.request.Request(
+            endpoint, data=body, method="POST",
+            headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"})
+        try:
+            with urllib.request.urlopen(req, timeout=120) as resp:
+                data = json.loads(resp.read())
+            url = data.get("data", [{}])[0].get("url")
+            if not url:
+                print(f"   ⚠️ Seedream 未返回图片 URL: {data}")
+                return None
+            with urllib.request.urlopen(url, timeout=60) as dl, out.open("wb") as f:
+                f.write(dl.read())
+            return out if out.exists() and out.stat().st_size > 1000 else None
+        except urllib.error.HTTPError as exc:
+            detail = exc.read(2000).decode("utf-8", errors="replace")
+            hint = {401: "检查 API Key", 403: "检查 endpoint 权限",
+                    404: "检查模型 ID", 429: "限流"}.get(exc.code, str(exc.code))
+            print(f"   ⚠️ Seedream {hint}: {detail[:300]}")
+            return None
+        except Exception as exc:
+            print(f"   ⚠️ Seedream 失败: {exc}")
+            return None
 
     # ---- DALL·E 3 ----
 
@@ -193,7 +245,7 @@ if __name__ == "__main__":
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("board", type=Path)
     p.add_argument("--out", type=Path, required=True)
-    p.add_argument("--backend", choices=["auto", "dalle", "replicate"], default="auto")
+    p.add_argument("--backend", choices=["auto", "seedream", "dalle", "replicate"], default="auto")
     args = p.parse_args()
 
     board = json.loads(args.board.read_text(encoding="utf-8"))
